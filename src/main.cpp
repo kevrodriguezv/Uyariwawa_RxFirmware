@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
+#include <Ticker.h>
 
 extern "C" {
   #include <espnow.h>
@@ -24,12 +25,22 @@ int pinCuidado   = D8;
 #define detente       (3)
 #define cuidado       (4)
 
+Ticker tk1,tk2;
 
+void test()
+{
+  Serial.println("testing...");
+}
+
+void apagar(int pin)
+{
+  digitalWrite(pin,LOW);
+}
 
 void setup()
 {
   Serial.begin(115200);
-  Serial.println("\r\nESP_Now MASTER CONTROLLER\r\n");
+  Serial.println("\n\nESP_Now MASTER CONTROLLER\r\n");
 
   pinMode(pinAuxilio, OUTPUT);
   pinMode(pinMantente, OUTPUT);
@@ -47,23 +58,29 @@ void setup()
     Serial.write(data, len);
 
     if (strstr((char*)data, "auxilio") != NULL) {
-      digitalWrite(pinAuxilio, !digitalRead(pinAuxilio));
+      digitalWrite(pinAuxilio, HIGH);
+      tk2.once_ms(5000, apagar, pinAuxilio);
     }
     else if (strstr((char*)data, "mantente") != NULL) {
-      digitalWrite(pinMantente, !digitalRead(pinMantente));
+      digitalWrite(pinMantente, HIGH);
+      tk2.once_ms(5000, apagar, pinMantente);
     }
      else if (strstr((char*)data, "tranquilo") != NULL) {
-      digitalWrite(pinTranquilo, !digitalRead(pinTranquilo));
+      digitalWrite(pinTranquilo, HIGH);
+      tk2.once_ms(5000, apagar, pinTranquilo);
     }
      else if (strstr((char*)data, "detente") != NULL) {
-      digitalWrite(pinDetente, !digitalRead(pinDetente));
+      digitalWrite(pinDetente, HIGH);
+      tk2.once_ms(5000, apagar, pinDetente);
     }
      else if (strstr((char*)data, "cuidado") != NULL) {
-      digitalWrite(pinCuidado, !digitalRead(pinCuidado));
+      digitalWrite(pinCuidado, HIGH);
+      tk2.once_ms(5000, apagar, pinCuidado);
     }
-    
       
   });
+
+  tk1.attach_ms(1000, test);
   
 }
  
